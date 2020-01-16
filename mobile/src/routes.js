@@ -12,7 +12,20 @@ const Routes = createAppContainer(
         title: 'DevRadar',
       },
     },
-    Profile,
+    Profile:{
+      screen: Profile,
+      navigationOptions:{
+        title: 'Perfil no GitHub',
+      },
+    },
+  },{
+    defaultNavigationOptions:{
+        headerTintColor:'#FFF',
+        headerBackTitleVisible: false,
+        headerStyle: {
+          backgroundColor:'#e30134',
+        },
+    },
   })
 )
 
