@@ -3,6 +3,6 @@
   "lanType": "ip",
   "dev": true,
   "minify": false,
-  "urlRandomness": "v4-peg",
+  "urlRandomness": "34-esx",
   "https": false
 }
