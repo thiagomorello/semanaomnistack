@@ -4,36 +4,54 @@ import MapView, { Marker, Callout } from 'react-native-maps';
 import { requestPermissionsAsync, getCurrentPositionAsync} from 'expo-location';
 import { MaterialIcons } from '@expo/vector-icons';
 
-import api from '../services/api'
+import api from '../services/api';
+import {connect, disconnect, subscribeToNewDevs} from '../services/socket';
+
 
 
 function Main( { navigation }){
   const [devs, setDevs] = useState([]);
   const [currentRegion, setCurrentRegion] = useState(null);
   const [techs, setTechs] = useState('');
-   useEffect(() => {
+  useEffect(() => {
 
-       async function loadInitialPosition(){
+     async function loadInitialPosition(){
 
-          const { granted } =  await requestPermissionsAsync();
-           if(granted){
+        const { granted } =  await requestPermissionsAsync();
+         if(granted){
 
-               const { coords } = await getCurrentPositionAsync({
-                   enableHighAccuracy:true,
-               });
+             const { coords } = await getCurrentPositionAsync({
+                 enableHighAccuracy:true,
+             });
 
-               const { latitude, longitude } =  coords;
+             const { latitude, longitude } =  coords;
 
-               setCurrentRegion({
-                   latitude,
-                   longitude,
-                   latitudeDelta: 0.04,
-                   longitudeDelta: 0.04,
-               });
-           }
-       }
-       loadInitialPosition();
-   }, []);
+             setCurrentRegion({
+                 latitude,
+                 longitude,
+                 latitudeDelta: 0.04,
+                 longitudeDelta: 0.04,
+             });
+         }
+     }
+     loadInitialPosition();
+  }, []);
+
+  useEffect(() => {
+   subscribeToNewDevs( dev => setDevs([...devs, dev]));
+ }, [devs]);
+
+   function setupWebSocket(){
+     disconnect();
+
+     const  { latitude, longitude} = currentRegion;
+
+     connect(
+       latitude,
+       longitude,
+       techs
+     );
+   }
 
    async function loadDevs(){
      const {latitude, longitude} = currentRegion;
@@ -44,9 +62,11 @@ function Main( { navigation }){
          techs,
        },
      });
-     console.log(response.data.devs);
      setDevs(response.data.devs);
+     setupWebSocket();
    }
+
+
    function handleRegionChanged(region){
       setCurrentRegion(region);
    }
